@@ -25,3 +25,19 @@ gpt-4-1106-preview:
     endpoints: null
     api_type: openai
     parallel: 8
+
+llama-3-alpaca-it:
+    model_name: simonycl/self-seq-Meta-Llama-3-8B-alpaca_it_llmam_70b
+    endpoints:
+        - api_base: http://0.0.0.0:8000
+          api_key: token-abc123
+    api_type: openai
+    parallel: 8
+
+llama-3-alpaca-sit:
+    model_name: simonycl/self-seq-Meta-Llama-3-8B-alpaca_llmam_70b-iter-2
+    endpoints:
+        - api_base: http://0.0.0.0:8000
+          api_key: token-abc123
+    api_type: openai
+    parallel: 8
