@@ -1,8 +1,8 @@
 # Evaluation Setup
 ## Install Dependencies
 ```
-git clone https://github.com/lm-sys/arena-hard.git
-cd arena-hard
+git clone https://github.com/simonucl/arena-hard-auto.git
+cd arena-hard-auto
 pip install -r requirements.txt
 
 # Install git-lfs
@@ -124,8 +124,18 @@ gpt-3.5-turbo-0125:
     api_type: openai
     parallel: 8
 ```
-You may use inference engine such as [vLLM](https://docs.vllm.ai/en/latest/serving/openai_compatible_server.html) or [SGLang](https://github.com/sgl-project/sglang?tab=readme-ov-file#using-local-models) to host your model with an OpenAI compatible API server.
+You may use inference engine such as [Latest TGI version](https://huggingface.co/docs/text-generation-inference/en/messages_api) or [vLLM](https://docs.vllm.ai/en/latest/serving/openai_compatible_server.html) or [SGLang](https://github.com/sgl-project/sglang?tab=readme-ov-file#using-local-models) to host your model with an OpenAI compatible API server.
 
+TGI Quick start
+```
+hf_pat=
+model=
+volume=/path/to/cache
+port=1996
+
+huggingface-cli download $model
+sudo docker run --gpus 8 -e HUGGING_FACE_HUB_TOKEN=$hf_pat --shm-size 2000g -p $port:80 -v $volume:/data ghcr.io/huggingface/text-generation-inference:2.0.4 --model-id $model --max-input-length 8192 --max-batch-total-tokens 8193 --max-batch-prefill-tokens 8193 --max-total-tokens 8193
+```
 
 ### Step 2. Generate Model Answers
 
@@ -135,6 +145,7 @@ bench_name: arena-hard-v0.1
 temperature: 0.0
 max_tokens: 4096
 num_choices: 1
+
 
 model_list:
   - [YOUR-MODEL-NAME]
@@ -177,7 +188,7 @@ You can review individual judgment results using our UI code.
 Coming soon...
 
 ## Citation
-The code in this repository is mostly developed for or derived from the paper below. Please cite it if you find the repository helpful.
+The code in this repository is mostly developed for or derived from the papers below. Please cite it if you find the repository helpful.
 ```
 @misc{li2024crowdsourced,
       title={From Crowdsourced Data to High-Quality Benchmarks: Arena-Hard and BenchBuilder Pipeline}, 
@@ -186,5 +197,20 @@ The code in this repository is mostly developed for or derived from the paper be
       eprint={2406.11939},
       archivePrefix={arXiv},
       primaryClass={cs.LG}
+}
+@misc{chiang2024chatbot,
+    title={Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference},
+    author={Wei-Lin Chiang and Lianmin Zheng and Ying Sheng and Anastasios Nikolas Angelopoulos and Tianle Li and Dacheng Li and Hao Zhang and Banghua Zhu and Michael Jordan and Joseph E. Gonzalez and Ion Stoica},
+    year={2024},
+    eprint={2403.04132},
+    archivePrefix={arXiv},
+    primaryClass={cs.AI}
+}
+@misc{arenahard2024,
+    title = {From Live Data to High-Quality Benchmarks: The Arena-Hard Pipeline},
+    url = {https://lmsys.org/blog/2024-04-19-arena-hard/},
+    author = {Tianle Li*, Wei-Lin Chiang*, Evan Frick, Lisa Dunlap, Banghua Zhu, Joseph E. Gonzalez, Ion Stoica},
+    month = {April},
+    year = {2024}
 }
 ```
