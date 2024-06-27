@@ -1,8 +1,15 @@
+# Check OPENAI_API_KEY is set
+if [ -z "$OPENAI_API_KEY" ]; then
+    echo "OPENAI_API_KEY is not set"
+    exit 1
+fi
+
 CHECKPOINT_PATHS=(
     meta-llama/Meta-Llama-3-8B-Instruct
 )
 
 NUM_GPUS=1
+SLEEP=300
 for CHECKPOINT_PATH in "${CHECKPOINT_PATHS[@]}"; do
     MODEL_NAME=$(basename $CHECKPOINT_PATH)
     # Step 1: Generate config
@@ -10,10 +17,10 @@ for CHECKPOINT_PATH in "${CHECKPOINT_PATHS[@]}"; do
         --model_path $CHECKPOINT_PATH
 
     # Step 2: Start vllm server (TODO: have to be in the background and wait for it to be ready, kill it after eval)
-    python3 -m vllm.entrypoints.openai.api_server --model $CHECKPOINT_PATH --dtype auto --api-key token-abc123 --port 8000 --tensor-parallel-size $NUM_GPUS &
+    python3 -m vllm.entrypoints.openai.api_server --model $CHECKPOINT_PATH --dtype auto --api-key token-abc123 --port 8000 --tensor-parallel-size $NUM_GPUS > vllm.log &
 
     # Wait for the server to be ready
-    sleep 300
+    sleep $SLEEP
 
     # Step 3: Run gen answer
     python3 gen_answer.py \
@@ -21,13 +28,13 @@ for CHECKPOINT_PATH in "${CHECKPOINT_PATHS[@]}"; do
         --endpoint-file config/$MODEL_NAME/api_config.yaml
 
     # Step 4: Run gen judgement
-    python gen_judgement.py \
+    python3 gen_judgement.py \
         --setting-file config/$MODEL_NAME/judge_config.yaml \
         --endpoint-file config/$MODEL_NAME/api_config.yaml
 
     # Step 5: Kill vllm server by port and kill all with name ray
-    kill $(lsof -t -i:8000)
     pkill -f vllm
+    pkill -f multiprocessing
 
 done
 

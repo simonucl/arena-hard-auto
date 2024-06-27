@@ -7,13 +7,19 @@ def gen_api_config(model_name, model_path):
             "model_name": model_path,
             "endpoints": [
                 {
-                    "api_base": "http://0.0.0.0:8742/v1",
+                    "api_base": "http://0.0.0.0:8000/v1",
                     "api_key": "token-abc123",
                 }
             ],
             "api_type": "openai",
             "parallel": 8,
-    }
+    },
+        "gpt-4-1106-preview": {
+            "model_name": "gpt-4-1106-preview",
+            "endpoints": [],
+            "api_type": "openai",
+            "parallel": 8,
+        },
     }
     return api_config
 
