@@ -1,6 +1,7 @@
 CHECKPOINT_PATHS=(
     meta-llama/Meta-Llama-3-8B-Instruct
 )
+
 NUM_GPUS=1
 for CHECKPOINT_PATH in "${CHECKPOINT_PATHS[@]}"; do
     MODEL_NAME=$(basename $CHECKPOINT_PATH)
