@@ -20,6 +20,12 @@ def gen_api_config(model_name, model_path):
             "api_type": "openai",
             "parallel": 8,
         },
+        "gpt-4-turbo": {
+            "model_name": "gpt-4-turbo",
+            "endpoints": ["https://elm-proxy.edina.ac.uk/v1"],
+            "api_type": "openai",
+            "parallel": 8,
+        },
     }
     return api_config
 
@@ -36,7 +42,7 @@ def gen_answer_config(model_name):
 def gen_judge_config(model_name):
     judge_config = {
         "bench_name": "arena-hard-v0.1",
-        "judge_model": "gpt-4-1106-preview",
+        "judge_model": "gpt-4-turbo",
         "reference": False,
         "ref_model": "null",
         "baseline": True,
