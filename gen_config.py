@@ -22,7 +22,7 @@ def gen_api_config(model_name, model_path):
         },
         "gpt-4-turbo": {
             "model_name": "gpt-4-turbo",
-            "endpoints": ["https://elm-proxy.edina.ac.uk/v1"],
+            "endpoints": [{"api_base": "https://elm-proxy.edina.ac.uk/v1", "api_key": ""}],
             "api_type": "openai",
             "parallel": 8,
         },
