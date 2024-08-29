@@ -1,7 +1,7 @@
 CHECKPOINT_PATHS=(
-    # meta-llama/Meta-Llama-3-8B-Instruct
-    simonycl/llama-3-8b-instruct-agg-judge
-    simonycl/llama-3-8b-instruct-single-judge
+    simonycl/llama-3.1-8b-instruct-single-judge
+    simonycl/llama-3.1-8b-instruct-agg-judge
+    simonycl/llama-3.1-8b-instruct-armorm
 )
 
 NUM_GPUS=1

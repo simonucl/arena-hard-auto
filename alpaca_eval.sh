@@ -1,5 +1,7 @@
 CHECKPOINT_PATHS=(
-    meta-llama/Meta-Llama-3-8B-Instruct
+    simonycl/llama-3.1-8b-instruct-single-judge
+    simonycl/llama-3.1-8b-instruct-agg-judge
+    simonycl/llama-3.1-8b-instruct-armorm
 )
 
 NUM_GPUS=1
@@ -10,8 +12,8 @@ for CHECKPOINT_PATH in "${CHECKPOINT_PATHS[@]}"; do
     # Step 1: Generate config
     python3 -m eval.alpaca_eval.gen \
         --model_path $CHECKPOINT_PATH
-        --save_dir results/alpaca_eval/${MODEL_NAME}
-        --max_new_tokens 2048
+        --save_dir results/alpaca_eval/${MODEL_NAME} \
+        --max_new_tokens 4096
 
     alpaca_eval --model_outputs results/alpaca_eval/${MODEL_NAME}/$MODEL_NAME-greedy-long-output.json
 done
