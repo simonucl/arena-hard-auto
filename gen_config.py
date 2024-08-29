@@ -16,7 +16,7 @@ def gen_api_config(model_name, model_path):
     },
         "gpt-4-1106-preview": {
             "model_name": "gpt-4-1106-preview",
-            "endpoints": [],
+            "endpoints": None,
             "api_type": "openai",
             "parallel": 8,
         },
