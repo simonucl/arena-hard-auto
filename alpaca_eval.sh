@@ -11,7 +11,7 @@ for CHECKPOINT_PATH in "${CHECKPOINT_PATHS[@]}"; do
     MODEL_NAME=$(basename $CHECKPOINT_PATH)
     # Step 1: Generate config
     python3 -m eval.alpaca_eval.gen \
-        --model_path $CHECKPOINT_PATH
+        --model_name_or_path $CHECKPOINT_PATH \
         --save_dir results/alpaca_eval/${MODEL_NAME} \
         --max_new_tokens 4096
 
