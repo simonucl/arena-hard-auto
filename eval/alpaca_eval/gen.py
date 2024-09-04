@@ -268,13 +268,12 @@ def main(args):
                 print("Set tokenizer.model_max_length to model.config.max_position_embeddings: {}".format(model.config.max_position_embeddings))
 
             # apply chat formatting
-            if args.use_chat_format:
-                formatted_prompts = []
-                for prompt in prompts:
-                    messages = [{"role": "user", "content": prompt}]
-                    formatted_prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-                    formatted_prompts.append(formatted_prompt)
-                prompts = formatted_prompts
+            formatted_prompts = []
+            for prompt in prompts:
+                messages = [{"role": "user", "content": prompt}]
+                formatted_prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+                formatted_prompts.append(formatted_prompt)
+            prompts = formatted_prompts
             outputs = generate_completions(
                 model=model,
                 tokenizer=tokenizer,
@@ -391,7 +390,7 @@ if __name__ == "__main__":
         default=None,
         help="If uploading to hf, this is the model name"
     )
-    
+
     args = parser.parse_args()
 
     # model_name_or_path and openai_engine cannot be both None or both not None.
