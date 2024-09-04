@@ -372,6 +372,26 @@ if __name__ == "__main__":
         action="store_true",
         help="If given, we will use vllm to generate the predictions.",
     )
+    parser.add_argument(
+        "--hf_revision",
+        type=str,
+        default=None,
+        help="if specified, we will load the model from a revision of the model in the hub"
+    )
+    parser.add_argument(
+        "--upload_to_hf",
+        type=str,
+        default=None,
+        help="If specified, we will upload the results to Hugging Face Datasets. "
+             "This should be the name of the dataset to upload to."
+    )
+    parser.add_argument(
+        "--hf_upload_name",
+        type=str,
+        default=None,
+        help="If uploading to hf, this is the model name"
+    )
+    
     args = parser.parse_args()
 
     # model_name_or_path and openai_engine cannot be both None or both not None.
