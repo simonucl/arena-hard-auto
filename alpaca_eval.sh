@@ -13,6 +13,7 @@ for CHECKPOINT_PATH in "${CHECKPOINT_PATHS[@]}"; do
     python3 -m eval.alpaca_eval.gen \
         --model_name_or_path $CHECKPOINT_PATH \
         --save_dir results/alpaca_eval/${MODEL_NAME} \
+        --batch_size 16 \
         --max_new_tokens 4096
 
     alpaca_eval --model_outputs results/alpaca_eval/${MODEL_NAME}/$MODEL_NAME-greedy-long-output.json
