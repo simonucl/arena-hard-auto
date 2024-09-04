@@ -23,9 +23,9 @@ def gen_api_config(model_name, model_path):
     }
     return api_config
 
-def gen_answer_config(model_name):
+def gen_answer_config(model_name, bench_name):
     answer_config = {
-        "bench_name": "arena-hard-v0.1",
+        "bench_name": bench_name,
         "temperature": 0.0,
         "max_tokens": 4096,
         "num_choices": 1,
