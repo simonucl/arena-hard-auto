@@ -19,7 +19,7 @@ class KeyWordsCriteria(StoppingCriteria):
 def generate_completions(model, tokenizer, prompts, batch_size=1, stop_id_sequences=None, add_special_tokens=True, disable_tqdm=False, **generation_kwargs):
     generations = []
     if not disable_tqdm:
-        progress = tqdm.tqdm(total=len(prompts), desc="Generating Completions")
+        progress = tqdm(total=len(prompts), desc="Generating Completions")
 
     num_return_sequences = generation_kwargs.get("num_return_sequences", 1)
     for i in range(0, len(prompts), batch_size):
@@ -216,7 +216,7 @@ def main(args):
         prompts.append(prompt)
 
     # <|end_of_text|>, <|eom_id|>, <|eot_id|>
-    additional_stop_sequence = ["<|end_of_text|>", "<|eom_id|>", "<|eot_id|>"]
+    additional_stop_sequence = [["<|end_of_text|>"], ["<|eom_id|>"], ["<|eot_id|>"]]
     model_name = os.path.basename(os.path.normpath(args.model_name_or_path)) if args.model_name_or_path is not None else args.openai_engine
 
     if args.model_name_or_path is not None:
