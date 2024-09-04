@@ -9,6 +9,45 @@ import vllm
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from tqdm import tqdm
 from transformers import StoppingCriteria, StoppingCriteriaList
+import time
+from concurrent.futures import ThreadPoolExecutor
+
+API_ERROR_OUTPUT = ""
+API_MAX_RETRY = 3
+API_RETRY_SLEEP = 1
+
+def chat_completion_openai(model, messages, temperature, max_tokens, api_dict=None):
+    import openai
+    if api_dict:
+        client = openai.OpenAI(
+            base_url=api_dict["api_base"],
+            api_key=api_dict["api_key"],
+        )
+    else:
+        client = openai.OpenAI()
+    
+    output = API_ERROR_OUTPUT
+    for _ in range(API_MAX_RETRY):
+        try:
+            completion = client.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                )
+            output = completion.choices[0].message.content
+            break
+        except openai.RateLimitError as e:
+            print(type(e), e)
+            time.sleep(API_RETRY_SLEEP)
+        except openai.BadRequestError as e:
+            print(messages)
+            print(type(e), e)
+        except KeyError:
+            print(type(e), e)
+            break
+    
+    return output
 
 class KeyWordsCriteria(StoppingCriteria):
     def __init__(self, stop_id_sequences):
@@ -263,6 +302,21 @@ def main(args):
                     
             outputs = model.generate(prompts, sampling_params)
             outputs = [it.outputs[0].text for it in outputs]
+        elif args.use_vllm_server:
+            formatted_prompts = []
+            for prompt in prompts:
+                messages = [{"role": "user", "content": prompt}]
+                formatted_prompt = tokenizer.apply_chat_template(messages, tokenizer=tokenizer, add_bos=False)
+                formatted_prompts.append(formatted_prompt)
+            api_dict = {
+                "api_key": "token-abc123",
+                "api_base": "http://0.0.0.0:8000/v1"
+            }
+            with ThreadPoolExecutor(max_workers=10) as executor:
+                futures = [executor.submit(chat_completion_openai, args.model_name_or_path, formatted_prompt, 0, args.max_new_tokens, api_dict=api_dict) for formatted_prompt in formatted_prompts]
+                outputs = []
+                for future in tqdm(futures, total=len(futures), desc="Generating completions"):
+                    outputs.append(future.result())
         else:
             model = load_hf_lm(
                 model_name_or_path=args.model_name_or_path,
@@ -399,6 +453,11 @@ if __name__ == "__main__":
         type=str,
         default=None,
         help="If uploading to hf, this is the model name"
+    )
+    parser.add_argument(
+        "--use_vllm_server",
+        action="store_true",
+        help="If given, we will use vllm server to generate the predictions.",
     )
 
     args = parser.parse_args()

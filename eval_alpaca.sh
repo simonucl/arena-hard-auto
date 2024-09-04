@@ -1,7 +1,5 @@
 CHECKPOINT_PATHS=(
-    simonycl/llama-3.1-8b-instruct-single-judge
-    simonycl/llama-3.1-8b-instruct-agg-judge
-    simonycl/llama-3.1-8b-instruct-armorm
+    /mnt/nfs/public/hf/models/meta-llama/Meta-Llama-3.1-8B-Instruct
 )
 
 NUM_GPUS=1
@@ -20,9 +18,16 @@ for CHECKPOINT_PATH in "${CHECKPOINT_PATHS[@]}"; do
     sleep $SLEEP
 
     # Step 3: Run gen answer
-    python3 gen_answer.py \
-        --setting-file config/$MODEL_NAME/gen_answer_config.yaml \
-        --endpoint-file config/$MODEL_NAME/api_config.yaml
+    # python3 gen_answer.py \
+    #     --setting-file config/$MODEL_NAME/gen_answer_config.yaml \
+    #     --endpoint-file config/$MODEL_NAME/api_config.yaml
+
+    python3 -m eval.alpaca_eval.gen \
+        --model_name_or_path $CHECKPOINT_PATH \
+        --save_dir results/alpaca_eval/${MODEL_NAME} \
+        --eval_batch_size 16 \
+        --max_new_tokens 4096 \
+        --use_vllm_server
 
     # Step 4: Run gen judgement
     # python3 gen_judgement.py \
