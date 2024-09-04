@@ -27,11 +27,16 @@ def main(args):
             tokenizer=args.tokenizer_name_or_path if args.tokenizer_name_or_path is not None else args.model_name_or_path,
             tensor_parallel_size=torch.cuda.device_count(),
         )
-        
-        sampling_params = vllm.SamplingParams(
-            temperature=0,  # greedy decoding
-            max_tokens=args.max_new_tokens,
-        )
+        sampling_params = {
+            "temperature": 0,
+            "max_tokens": args.max_new_tokens,
+        }
+
+        if "llama-3.1" in args.model_name_or_path.lower():
+            sampling_params["stop_token_ids"] = [128001, 128008, 128009]
+        elif "llama-3" in args.model_name_or_path.lower():
+            sampling_params["stop_token_ids"] = [128001, 128009]
+        sampling_params = vllm.SamplingParams(**sampling_params)
         formatted_prompts = []
         tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path)
         for prompt in prompts:
