@@ -303,17 +303,13 @@ def main(args):
             outputs = model.generate(prompts, sampling_params)
             outputs = [it.outputs[0].text for it in outputs]
         elif args.use_vllm_server:
-            formatted_prompts = []
-            for prompt in prompts:
-                messages = [{"role": "user", "content": prompt}]
-                formatted_prompt = tokenizer.apply_chat_template(messages, tokenizer=tokenizer, add_bos=False)
-                formatted_prompts.append(formatted_prompt)
+            messages = [[{"role": "user", "content": prompt}] for prompt in prompts]
             api_dict = {
                 "api_key": "token-abc123",
                 "api_base": "http://0.0.0.0:8000/v1"
             }
             with ThreadPoolExecutor(max_workers=10) as executor:
-                futures = [executor.submit(chat_completion_openai, args.model_name_or_path, formatted_prompt, 0, args.max_new_tokens, api_dict=api_dict) for formatted_prompt in formatted_prompts]
+                futures = [executor.submit(chat_completion_openai, args.model_name_or_path, message, 0, args.max_new_tokens, api_dict=api_dict) for message in messages]
                 outputs = []
                 for future in tqdm(futures, total=len(futures), desc="Generating completions"):
                     outputs.append(future.result())
