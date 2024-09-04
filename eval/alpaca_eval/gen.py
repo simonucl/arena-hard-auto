@@ -6,7 +6,7 @@ import random
 import torch
 import datasets
 import vllm
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
 def main(args):
     random.seed(42)
@@ -22,31 +22,34 @@ def main(args):
     model_name = os.path.basename(os.path.normpath(args.model_name_or_path)) if args.model_name_or_path is not None else args.openai_engine
 
     if args.model_name_or_path is not None:
-        model = vllm.LLM(
-            model=args.model_name_or_path,
-            tokenizer=args.tokenizer_name_or_path if args.tokenizer_name_or_path is not None else args.model_name_or_path,
-            tensor_parallel_size=torch.cuda.device_count(),
+        model = AutoModelForCausalLM.from_pretrained(args.model_name_or_path, device_map="auto")
+        tokenizer = AutoTokenizer.from_pretrained(
+            args.tokenizer_name_or_path if args.tokenizer_name_or_path is not None else args.model_name_or_path,
+            use_fast=not args.use_slow_tokenizer
         )
-        sampling_params = {
-            "temperature": 0,
-            "max_tokens": args.max_new_tokens,
-        }
 
-        if "llama-3.1" in args.model_name_or_path.lower():
-            sampling_params["stop_token_ids"] = [128001, 128008, 128009]
-        elif "llama-3" in args.model_name_or_path.lower():
-            sampling_params["stop_token_ids"] = [128001, 128009]
-        sampling_params = vllm.SamplingParams(**sampling_params)
         formatted_prompts = []
-        tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path)
         for prompt in prompts:
             messages = [{"role": "user", "content": prompt}]
             formatted_prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
             formatted_prompts.append(formatted_prompt)
-        prompts = formatted_prompts
-                    
-        outputs = model.generate(prompts, sampling_params)
-        outputs = [it.outputs[0].text.strip('\n') for it in outputs]
+
+        outputs = []
+        for prompt in formatted_prompts:
+            inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+            with torch.no_grad():
+                output = model.generate(
+                    **inputs,
+                    max_new_tokens=args.max_new_tokens,
+                    do_sample=False,
+                    pad_token_id=tokenizer.eos_token_id
+                )
+            decoded_output = tokenizer.decode(output[0], skip_special_tokens=True)
+            outputs.append(decoded_output[len(prompt):].strip())
+
+        if "llama-3.1" in args.model_name_or_path.lower() or "llama-3" in args.model_name_or_path.lower():
+            stop_tokens = tokenizer.convert_tokens_to_ids(["</s>", "<|im_end|>", "<|endoftext|>"])
+            outputs = [output.split(tokenizer.decode(stop_tokens[0]))[0] for output in outputs]
 
     model_results = [{**example, 'output': output, 'generator': model_name} for example, output in zip(alpaca_eval_data, outputs)]
     with open(os.path.join(args.save_dir, f"{model_name}-greedy-long-output.json"), "w") as fout:
