@@ -290,7 +290,7 @@ def main(args):
             sampling_params = vllm.SamplingParams(
                 temperature=0,  # greedy decoding
                 max_tokens=args.max_new_tokens,
-                stop=additional_stop_sequence,
+                repetition_penalty=args.repetition_penalty,
             )
             # apply chat formatting
             formatted_prompts = []
@@ -455,7 +455,12 @@ if __name__ == "__main__":
         action="store_true",
         help="If given, we will use vllm server to generate the predictions.",
     )
-
+    parser.add_argument(
+        "--repetition_penalty",
+        type=float,
+        default=1.0,
+        help="Repetition penalty for the model."
+    )
     args = parser.parse_args()
 
     # model_name_or_path and openai_engine cannot be both None or both not None.
