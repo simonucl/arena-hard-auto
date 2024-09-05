@@ -112,7 +112,10 @@ def chat_completion_openai(model, messages, temperature, max_tokens, api_dict=No
                 messages=messages,
                 temperature=temperature,
                 max_tokens=max_tokens,
-                stop=["<|end_of_text|>", "<|eom_id|>", "<|eot_id|>", "<|end_header_id|>"],
+                # stop=["<|end_of_text|>", "<|eom_id|>", "<|eot_id|>", "<|end_header_id|>"],
+                extra_body={
+                    "skip_special_tokens": False
+                }
             )
             output = completion.choices[0].message.content
             break
