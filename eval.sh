@@ -1,11 +1,9 @@
 CHECKPOINT_PATHS=(
-    simonycl/llama-3.1-8b-instruct-single-judge
-    simonycl/llama-3.1-8b-instruct-agg-judge
-    simonycl/llama-3.1-8b-instruct-armorm
+    /mnt/nfs/public/hf/models/meta-llama/Meta-Llama-3.1-8B-Instruct
 )
 
 NUM_GPUS=1
-SLEEP=30
+SLEEP=120
 for CHECKPOINT_PATH in "${CHECKPOINT_PATHS[@]}"; do
     MODEL_NAME=$(basename $CHECKPOINT_PATH)
     # Step 1: Generate config
@@ -31,7 +29,7 @@ for CHECKPOINT_PATH in "${CHECKPOINT_PATHS[@]}"; do
     # Step 5: Kill vllm server by port and kill all with name ray
     pkill -f vllm
     pkill -f multiprocessing
-
+pkill -f sglang
 done
 
 python3 show_result.py

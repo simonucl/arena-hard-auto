@@ -3,7 +3,7 @@ CHECKPOINT_PATHS=(
 )
 
 NUM_GPUS=1
-SLEEP=30
+SLEEP=120
 for CHECKPOINT_PATH in "${CHECKPOINT_PATHS[@]}"; do
     MODEL_NAME=$(basename $CHECKPOINT_PATH)
     # Step 1: Generate config
@@ -12,9 +12,9 @@ for CHECKPOINT_PATH in "${CHECKPOINT_PATHS[@]}"; do
         --bench_name alpaca_eval
 
     # Step 2: Start vllm server (TODO: have to be in the background and wait for it to be ready, kill it after eval)
-    # python3 -m vllm.entrypoints.openai.api_server --model $CHECKPOINT_PATH --dtype auto --api-key token-abc123 --port 8000 --tensor-parallel-size $NUM_GPUS > vllm.log &
+    python3 -m vllm.entrypoints.openai.api_server --model $CHECKPOINT_PATH --dtype auto --api-key token-abc123 --port 8000 --tensor-parallel-size $NUM_GPUS > vllm.log &
 
-    python -m sglang.launch_server --model-path $CHECKPOINT_PATH --api-key token-abc123 --port 8000 --dp 4 > sglang.log &
+    # python -m sglang.launch_server --model-path $CHECKPOINT_PATH --api-key token-abc123 --port 8000 --dp 4 > sglang.log &
 
     # Wait for the server to be ready
     sleep $SLEEP
@@ -31,6 +31,8 @@ for CHECKPOINT_PATH in "${CHECKPOINT_PATHS[@]}"; do
         --max_new_tokens 4096 \
         --use_vllm_server
 
+    alpaca_eval --model_outputs results/alpaca_eval/${MODEL_NAME}/${MODEL_NAME}-greedy-long-output.json
+    
     # Step 4: Run gen judgement
     # python3 gen_judgement.py \
     #     --setting-file config/$MODEL_NAME/judge_config.yaml \
@@ -39,6 +41,7 @@ for CHECKPOINT_PATH in "${CHECKPOINT_PATHS[@]}"; do
     # Step 5: Kill vllm server by port and kill all with name ray
     pkill -f vllm
     pkill -f multiprocessing
+    pkill -f sglang
 
 done
 

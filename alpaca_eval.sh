@@ -15,6 +15,7 @@ for PENALTY in "${PENALTYS[@]}"; do
         --max_new_tokens 4096 \
         --use_vllm \
         --repetition_penalty $PENALTY
+        
     alpaca_eval --model_outputs results/alpaca_eval/${MODEL_NAME}_${PENALTY}/${MODEL_NAME}-greedy-long-output.json
 done
 
