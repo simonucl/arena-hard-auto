@@ -23,11 +23,13 @@ bash eval.sh
 # Original Documentation
 Arena-Hard-Auto-v0.1 is an automatic evaluation tool for instruction-tuned LLMs. It contains 500 challenging user queries. We prompt GPT-4-Turbo as judge to compare the models' responses against a baseline model (default: GPT-4-0314). Although both Arena-Hard-Auto and Chatbot Arena Category Hard employ similar pipeline to select hard prompts, Arena-Hard-Auto employs automatic judge as a cheaper and faster approximator to human preference. Notably, Arena-Hard-Auto has the highest correlation and separability to Chatbot Arena among popular open-ended LLM benchmarks (see our blog post). If you are curious to see how well your model might perform on Chatbot Arena, we recommend trying Arena-Hard-Auto. 
 
-Check out our paper for more details about how Arena Hard Auto v0.1 works -> [Paper link](https://arxiv.org/abs/2406.11939)
+> 🚨 New feature (08/31): **Style Control** is now added to Arena Hard Auto! Check this [section](#style-control) to start using style control!
 
-Check out how Chatbot Arena Category Hard Prompt works -> [Blogpost link](https://lmsys.org/blog/2024-05-17-category-hard/)
+Arena-Hard-Auto-v0.1 ([See Paper](https://arxiv.org/abs/2406.11939)) is an automatic evaluation tool for instruction-tuned LLMs. It contains 500 challenging user queries. We prompt GPT-4-Turbo as judge to compare the models' responses against a baseline model (default: GPT-4-0314). Notably, Arena-Hard-Auto has the highest correlation and separability to Chatbot Arena among popular open-ended LLM benchmarks ([See Paper](https://arxiv.org/abs/2406.11939)). If you are curious to see how well your model might perform on Chatbot Arena, we recommend trying Arena-Hard-Auto.
 
-## Full Leaderboard (Updated: 08/09)
+Although both Arena-Hard-Auto and Chatbot Arena Category Hard ([See Blog](https://lmsys.org/blog/2024-05-17-category-hard/)) employ similar pipeline to select hard prompts, Arena-Hard-Auto employs automatic judge as a cheaper and faster approximator to human preference. Checkout [BenchBuilder](BenchBuilder) folder for code and resources on how we curate Arena-Hard-Auto.
+
+## Full Leaderboard (Updated: 08/31)
 ```console
 claude-3-5-sonnet-20240620     | score: 79.3  | 95% CI: (-2.1, 2.0)  | average #tokens: 567
 gpt-4o-2024-05-13              | score: 79.2  | 95% CI: (-1.9, 1.7)  | average #tokens: 696        
@@ -37,7 +39,7 @@ athene-70b                     | score: 77.6  | 95% CI: (-2.7, 2.2)  | average #
 gpt-4o-mini                    | score: 74.9  | 95% CI: (-2.5, 1.9)  | average #tokens: 668
 gemini-1.5-pro-api-preview     | score: 72.0  | 95% CI: (-2.1, 2.5)  | average #tokens: 676
 mistral-large-2407             | score: 70.4  | 95% CI: (-1.6, 2.1)  | average #tokens: 623
-llama-3.1-405b-instruct        | score: 64.1  | 95% CI: (-2.2, 2.9)  | average #tokens: 633
+llama-3.1-405b-instruct-fp8    | score: 69.3  | 95% CI: (-2.4, 2.2)  | average #tokens: 658
 glm-4-0520                     | score: 63.8  | 95% CI: (-2.9, 2.8)  | average #tokens: 636          
 yi-large                       | score: 63.7  | 95% CI: (-2.6, 2.4)  | average #tokens: 626
 deepseek-coder-v2              | score: 62.3  | 95% CI: (-2.1, 1.8)  | average #tokens: 578             
@@ -204,20 +206,37 @@ You can review individual judgment results using our UI code.
 > python qa_browser.py --share
 ```
 
+## Style Control
+Following the newly introduced Style Control on Chatbot Arena, we release Style Control on Arena Hard Auto! We employ the same Style Control methods as proposed in the [blogpost](https://lmsys.org/blog/2024-08-28-style-control/). Please refer to the blogpost for methodology and technical background.
+
+Before applying style control, make sure your model answers has proper style attribute generated. Either pull the latest data from [huggingface repo](https://huggingface.co/spaces/lmsys/arena-hard-browser), or run the following script!
+
+To add style attribute to your model answers, use `add_markdown_info.py`. The following command takes model answers from `--dir`, append style attributes (token length, number of headers, etc), and save the new answers in `--output-dir`.
+
+```console
+> python add_markdown_info.py --dir data/arena-hard-v0.1/model_answer --output-dir data/arena-hard-v0.1/model_answer
+```
+
+To control for style (token length and markdown elements), use `--style-control` when running `show_result.py`.
+
+```console
+> python show_result.py --style-control
+```
+
+To control for length and markdown separately, use `--length-control-only` and `--markdown-control-only`.
+
+
 ## Community Contribution
 Coming soon...
 
 ## Citation
 The code in this repository is mostly developed for or derived from the papers below. Please cite it if you find the repository helpful.
 ```
-@misc{li2024crowdsourceddatahighqualitybenchmarks,
-      title={From Crowdsourced Data to High-Quality Benchmarks: Arena-Hard and BenchBuilder Pipeline}, 
-      author={Tianle Li and Wei-Lin Chiang and Evan Frick and Lisa Dunlap and Tianhao Wu and Banghua Zhu and Joseph E. Gonzalez and Ion Stoica},
-      year={2024},
-      eprint={2406.11939},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG},
-      url={https://arxiv.org/abs/2406.11939}, 
+@article{li2024crowdsourced,
+  title={From Crowdsourced Data to High-Quality Benchmarks: Arena-Hard and BenchBuilder Pipeline},
+  author={Li, Tianle and Chiang, Wei-Lin and Frick, Evan and Dunlap, Lisa and Wu, Tianhao and Zhu, Banghua and Gonzalez, Joseph E and Stoica, Ion},
+  journal={arXiv preprint arXiv:2406.11939},
+  year={2024}
 }
 @misc{chiang2024chatbot,
     title={Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference},
