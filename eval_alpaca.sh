@@ -40,6 +40,7 @@ for CHECKPOINT_PATH in "${CHECKPOINT_PATHS[@]}"; do
         pkill -f multiprocessing
         pkill -f sglang
         continue
+    echo "VLLM server started successfully for $MODEL_NAME"
     fi
 
     # Step 3: Run gen answer
