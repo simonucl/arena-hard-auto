@@ -1,9 +1,15 @@
 CHECKPOINT_PATHS=(
-    /mnt/nfs/public/hf/models/meta-llama/Meta-Llama-3.1-8B-Instruct
+    # /mnt/nfs/public/hf/models/meta-llama/Meta-Llama-3.1-8B-Instruct
+    simonycl/llama-3-8b-instruct-armorm-judge
+    simonycl/llama-3-8b-instruct-single-judge
+    simonycl/llama-3-8b-instruct-agg-judge
+    simonycl/llama-3-8b-instruct-metamath-single-judge
+    simonycl/llama-3-8b-instruct-metamath-armorm
+    simonycl/llama-3.1-8b-instruct-armorm-iter0
 )
 
-NUM_GPUS=4
-SLEEP=60
+NUM_GPUS=2
+SLEEP=240
 for CHECKPOINT_PATH in "${CHECKPOINT_PATHS[@]}"; do
     MODEL_NAME=$(basename $CHECKPOINT_PATH)
     # Step 1: Generate config
@@ -40,7 +46,7 @@ for CHECKPOINT_PATH in "${CHECKPOINT_PATHS[@]}"; do
         --setting-file config/$MODEL_NAME/gen_answer_config.yaml \
         --endpoint-file config/$MODEL_NAME/api_config.yaml
 
-    Step 4: Run gen judgement
+    # Step 4: Run gen judgement
     python3 gen_judgement.py \
         --setting-file config/$MODEL_NAME/judge_config.yaml \
         --endpoint-file config/$MODEL_NAME/api_config.yaml
