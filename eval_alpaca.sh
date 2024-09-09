@@ -2,8 +2,8 @@ CHECKPOINT_PATHS=(
     /mnt/nfs/public/hf/models/meta-llama/Meta-Llama-3.1-8B-Instruct
 )
 
-NUM_GPUS=1
-SLEEP=120
+NUM_GPUS=4
+SLEEP=60
 for CHECKPOINT_PATH in "${CHECKPOINT_PATHS[@]}"; do
     MODEL_NAME=$(basename $CHECKPOINT_PATH)
     # Step 1: Generate config
@@ -32,11 +32,18 @@ for CHECKPOINT_PATH in "${CHECKPOINT_PATHS[@]}"; do
         --use_vllm_server
 
     alpaca_eval --model_outputs results/alpaca_eval/${MODEL_NAME}/${MODEL_NAME}-greedy-long-output.json
-    
-    # Step 4: Run gen judgement
-    # python3 gen_judgement.py \
-    #     --setting-file config/$MODEL_NAME/judge_config.yaml \
-    #     --endpoint-file config/$MODEL_NAME/api_config.yaml
+
+    python3 gen_config.py \
+        --model_path $CHECKPOINT_PATH
+
+    python3 gen_answer.py \
+        --setting-file config/$MODEL_NAME/gen_answer_config.yaml \
+        --endpoint-file config/$MODEL_NAME/api_config.yaml
+
+    Step 4: Run gen judgement
+    python3 gen_judgement.py \
+        --setting-file config/$MODEL_NAME/judge_config.yaml \
+        --endpoint-file config/$MODEL_NAME/api_config.yaml
 
     # Step 5: Kill vllm server by port and kill all with name ray
     pkill -f vllm
