@@ -5,7 +5,11 @@ CHECKPOINT_PATHS=(
     simonycl/llama-3-8b-instruct-agg-judge
     simonycl/llama-3-8b-instruct-metamath-single-judge
     simonycl/llama-3-8b-instruct-metamath-armorm
+    simonycl/llama-3-8b-instruct-metamath-agg-judge
     simonycl/llama-3.1-8b-instruct-armorm-iter0
+    simonycl/llama-3.1-8b-instruct-armorm-iter1
+    simonycl/llama-3.1-8b-instruct-armorm-judge-iter2
+    simonycl/llama-3.1-8b-instruct-armorm-judge-iter3
 )
 
 wait_for_server() {

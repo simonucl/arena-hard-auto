@@ -1,5 +1,6 @@
 MODEL_NAME_OR_PATH=$1
 NUM_GPUS=4
+MODEL_NAME=$(basename $MODEL_NAME_OR_PATH)
 
 lm_eval \
     --model vllm \
@@ -8,7 +9,7 @@ lm_eval \
     --apply_chat_template \
     --num_fewshot 0 \
     --batch_size 16 \
-    --output_path results || exit 1
+    --output_path results/$MODEL_NAME/ifeval || exit 1
 
 lm_eval \
     --model vllm \
@@ -17,7 +18,7 @@ lm_eval \
     --num_fewshot 0 \
     --apply_chat_template \
     --batch_size auto \
-    --output_path results || exit 1
+    --output_path results/$MODEL_NAME/leaderboard_gpqa || exit 1
 
 lm_eval \
     --model vllm \
@@ -27,7 +28,7 @@ lm_eval \
     --apply_chat_template \
     --log_samples \
     --gen_kwargs temperature=0 \
-    --output_path results || exit 1
+    --output_path results/$MODEL_NAME/gsm8k || exit 1
 
 lm_eval \
     --model vllm \
@@ -37,4 +38,4 @@ lm_eval \
     --apply_chat_template \
     --log_samples \
     --gen_kwargs temperature=0 \
-    --output_path results || exit 1
+    --output_path results/$MODEL_NAME/leaderboard_math_hard || exit 1
