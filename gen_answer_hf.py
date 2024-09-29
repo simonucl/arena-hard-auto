@@ -154,7 +154,7 @@ if __name__ == "__main__":
             "trust_remote_code": True,
             "torch_dtype": torch.bfloat16,
             "attn_implementation": "flash_attention_2",
-            "device": "cuda"
+            "device_map": "cuda"
         }
         
         model = AutoModelForCausalLM.from_pretrained(endpoint_info["model_name"], **model_kwargs)
@@ -166,7 +166,7 @@ if __name__ == "__main__":
             for question in questions
         ]
         tokenized_convs = [
-            tokenizer(tokenizer.apply_chat_template(conv, tokenize=False, add_generation_prompt=True), return_tensors="pt").to("cuda")
+            tokenizer(tokenizer.apply_chat_template([conv], tokenize=False, add_generation_prompt=True), return_tensors="pt").to("cuda")
             for conv in convs
         ]
         results = []
