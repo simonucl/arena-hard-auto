@@ -149,7 +149,7 @@ if __name__ == "__main__":
         max_tokens = settings["max_tokens"]
 
         from transformers import AutoTokenizer, AutoModelForCausalLM
-        tokenizer = AutoTokenizer.from_pretrained(endpoint_info["tokenizer"])
+        tokenizer = AutoTokenizer.from_pretrained(endpoint_info["model_name"])
         model_kwargs = {
             "trust_remote_code": True,
             "torch_dtype": torch.bfloat16,
