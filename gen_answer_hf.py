@@ -179,8 +179,9 @@ if __name__ == "__main__":
                     attention_mask=tokenized_conv.attention_mask,
                     max_new_tokens=max_tokens,
                     temperature=settings["temperature"],
+                    do_sample=False,
                 )
-                output = tokenizer.decode(outputs[0][len(tokenized_conv.input_ids[0]):])
+                output = tokenizer.decode(outputs[0][len(tokenized_conv.input_ids[0]):], skip_special_tokens=True)
                 turns.append({"content": output})
                 choices = [
                     {
