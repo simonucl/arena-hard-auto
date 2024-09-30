@@ -124,6 +124,8 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
+    batch_size = 32
+
     settings = make_config(args.setting_file)
     endpoint_list = make_config(args.endpoint_file)
 
@@ -156,7 +158,8 @@ if __name__ == "__main__":
             "attn_implementation": "flash_attention_2",
             "device_map": "cuda"
         }
-        
+        tokenizer.padding_side = "left"
+
         model = AutoModelForCausalLM.from_pretrained(endpoint_info["model_name"], **model_kwargs)
         convs = [
             {
@@ -165,46 +168,50 @@ if __name__ == "__main__":
             }
             for question in questions
         ]
-        tokenized_convs = [
-            tokenizer(tokenizer.apply_chat_template([conv], tokenize=False, add_generation_prompt=True), return_tensors="pt").to("cuda")
-            for conv in convs
-        ]
+        batch_tokenized_convs = []
+        for i in range(0, len(convs), batch_size):
+            batch_convs = convs[i:i+batch_size]
+            batch_chat_templates = [tokenizer.apply_chat_template([conv], tokenize=False, add_generation_prompt=True) for conv in batch_convs]
+            batch_tokens = tokenizer(batch_chat_templates, return_tensors="pt", padding=True, truncation=True).to("cuda")
+            batch_tokenized_convs.append(batch_tokens)
         results = []
         encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
         with torch.no_grad():
-            for i, tokenized_conv in tqdm.tqdm(enumerate(tokenized_convs), total=len(tokenized_convs)):
+            for i in tqdm.tqdm(range(len(batch_tokenized_convs))):
+                batch_tokenized_convs = batch_tokenized_convs[i]
                 turns = []
                 outputs = model.generate(
-                    input_ids=tokenized_conv.input_ids,
-                    attention_mask=tokenized_conv.attention_mask,
-                    max_new_tokens=10,
+                    input_ids=batch_tokenized_convs.input_ids,
+                    attention_mask=batch_tokenized_convs.attention_mask,
+                    max_new_tokens=max_tokens,
                     temperature=settings["temperature"],
                     do_sample=False,
                     use_cache=True,
                 )
-                output = tokenizer.decode(outputs[0][len(tokenized_conv.input_ids[0]):], skip_special_tokens=True)
-                print(output)
-                turns.append({"content": output})
-                choices = [
-                    {
-                        "index": i,
-                        "turns": turns
+                outputs = outputs[:, len(batch_tokenized_convs.input_ids[0]):]
+                outputs = tokenizer.batch_decode(outputs, skip_special_tokens=True)
+                turns = [{"content": output} for output in outputs]
+                for j in range(len(turns)):
+                    choices = [
+                        {
+                            "index": i * batch_size + j,
+                            "turns": turns[j]
+                        }
+                    ]
+                    ans = {
+                        "question_id": questions[i]["question_id"],
+                        "answer_id": shortuuid.uuid(),
+                        "model_id": model,
+                        "choices": choices,
+                        "tstamp": time.time(),
                     }
-                ]
-                ans = {
-                    "question_id": questions[i]["question_id"],
-                    "answer_id": shortuuid.uuid(),
-                    "model_id": model,
-                    "choices": choices,
-                    "tstamp": time.time(),
-                }
-                if len(choices) == len(turns) == 1:
-                    metadata = {"token_len": len(encoding.encode(output, 
-                                                     disallowed_special=()))}
-                    ans["conv_metadata"] = metadata | count_markdown_elements(remove_pattern(output, 
+                    if len(choices) == len(turns) == 1:
+                        metadata = {"token_len": len(encoding.encode(turns[j]["content"], 
+                                                        disallowed_special=()))}
+                        ans["conv_metadata"] = metadata | count_markdown_elements(remove_pattern(turns[j]["content"], 
                                                                      re.compile("```([^`]*)```")),
-                                                                 suffix="")
-                results.append(ans)
+                                                                     suffix="")
+                    results.append(ans)
         os.makedirs(os.pathdirname(answer_file), exist_ok=True)
         with open(answer_file, "w") as fout:
             for result in results:
