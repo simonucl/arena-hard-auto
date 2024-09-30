@@ -178,17 +178,17 @@ if __name__ == "__main__":
         encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
         with torch.no_grad():
             for i in tqdm.tqdm(range(len(batch_tokenized_convs))):
-                batch_tokenized_convs = batch_tokenized_convs[i]
+                batch_tokenized_conv = batch_tokenized_convs[i]
                 turns = []
                 outputs = model.generate(
-                    input_ids=batch_tokenized_convs.input_ids,
-                    attention_mask=batch_tokenized_convs.attention_mask,
+                    input_ids=batch_tokenized_conv.input_ids,
+                    attention_mask=batch_tokenized_conv.attention_mask,
                     max_new_tokens=max_tokens,
                     temperature=settings["temperature"],
                     do_sample=False,
                     use_cache=True,
                 )
-                outputs = outputs[:, len(batch_tokenized_convs.input_ids[0]):]
+                outputs = outputs[:, len(batch_tokenized_conv.input_ids[0]):]
                 outputs = tokenizer.batch_decode(outputs, skip_special_tokens=True)
                 turns = [{"content": output} for output in outputs]
                 for j in range(len(turns)):
