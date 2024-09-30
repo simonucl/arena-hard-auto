@@ -212,7 +212,7 @@ if __name__ == "__main__":
                                                                      re.compile("```([^`]*)```")),
                                                                      suffix="")
                     results.append(ans)
-        os.makedirs(os.pathdirname(answer_file), exist_ok=True)
+        os.makedirs(os.path.dirname(answer_file), exist_ok=True)
         with open(answer_file, "w") as fout:
             for result in results:
                 fout.write(json.dumps(result) + "\n")
