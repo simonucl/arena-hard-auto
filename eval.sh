@@ -1,6 +1,5 @@
 CHECKPOINT_PATHS=(
     ChenmieNLP/Llama-3-8B-DPO-Iter6
-    
 )
 
 wait_for_server() {
