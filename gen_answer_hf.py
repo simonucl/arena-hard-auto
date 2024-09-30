@@ -194,12 +194,12 @@ if __name__ == "__main__":
                 for j in range(len(turns)):
                     choices = [
                         {
-                            "index": i * batch_size + j,
+                            "index": 0,
                             "turns": turns[j]
                         }
                     ]
                     ans = {
-                        "question_id": questions[i]["question_id"],
+                        "question_id": questions[i * batch_size + j]["question_id"],
                         "answer_id": shortuuid.uuid(),
                         "model_id": endpoint_info["model_name"],
                         "choices": choices,
