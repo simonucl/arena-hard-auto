@@ -177,11 +177,13 @@ if __name__ == "__main__":
                 outputs = model.generate(
                     input_ids=tokenized_conv.input_ids,
                     attention_mask=tokenized_conv.attention_mask,
-                    max_new_tokens=max_tokens,
+                    max_new_tokens=10,
                     temperature=settings["temperature"],
                     do_sample=False,
+                    use_cache=True,
                 )
                 output = tokenizer.decode(outputs[0][len(tokenized_conv.input_ids[0]):], skip_special_tokens=True)
+                print(output)
                 turns.append({"content": output})
                 choices = [
                     {
