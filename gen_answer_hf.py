@@ -201,7 +201,7 @@ if __name__ == "__main__":
                     ans = {
                         "question_id": questions[i]["question_id"],
                         "answer_id": shortuuid.uuid(),
-                        "model_id": model,
+                        "model_id": endpoint_info["model_name"],
                         "choices": choices,
                         "tstamp": time.time(),
                     }
