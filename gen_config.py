@@ -16,16 +16,16 @@ def gen_api_config(model_name, model_path):
     },
         "gpt-4-1106-preview": {
             "model_name": "gpt-4-1106-preview",
-            "endpoints": [],
+            "endpoints": None,
             "api_type": "openai",
             "parallel": 8,
         },
     }
     return api_config
 
-def gen_answer_config(model_name):
+def gen_answer_config(model_name, bench_name):
     answer_config = {
-        "bench_name": "arena-hard-v0.1",
+        "bench_name": bench_name,
         "temperature": 0.0,
         "max_tokens": 4096,
         "num_choices": 1,
@@ -57,13 +57,16 @@ if __name__ == "__main__":
     parser.add_argument(
         "--model_path", type=str, default="meta-llama/Llama-3-Base-8B-SFT-SOAP"
     )
+    parser.add_argument(
+        "--bench_name", type=str, default="arena-hard-v0.1"
+    )
     args = parser.parse_args()
     
     # create directory under config
     model_name = os.path.basename(args.model_path)
     os.makedirs(f"config/{model_name}", exist_ok=True)
     api_config = gen_api_config(model_name, args.model_path)
-    answer_config = gen_answer_config(model_name)
+    answer_config = gen_answer_config(model_name, args.bench_name)
     judge_config = gen_judge_config(model_name)
 
     with open(f"config/{model_name}/api_config.yaml", "w") as fout:

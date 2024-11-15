@@ -1,4 +1,27 @@
-# Arena-Hard-Auto
+# Evaluation Setup
+## Install Dependencies
+```
+git clone https://github.com/simonucl/arena-hard-auto.git
+cd arena-hard-auto
+pip install -r requirements.txt
+
+# Install git-lfs
+curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
+sudo apt-get install git-lfs
+
+# Download the data
+git clone https://huggingface.co/spaces/lmsys/arena-hard-browser
+cp -r arena-hard-browser/data . 
+```
+
+## Evaluation
+```
+# Add checkpoints inside the eval.sh script
+bash eval.sh
+```
+
+# Original Documentation
+Arena-Hard-Auto-v0.1 is an automatic evaluation tool for instruction-tuned LLMs. It contains 500 challenging user queries. We prompt GPT-4-Turbo as judge to compare the models' responses against a baseline model (default: GPT-4-0314). Although both Arena-Hard-Auto and Chatbot Arena Category Hard employ similar pipeline to select hard prompts, Arena-Hard-Auto employs automatic judge as a cheaper and faster approximator to human preference. Notably, Arena-Hard-Auto has the highest correlation and separability to Chatbot Arena among popular open-ended LLM benchmarks (see our blog post). If you are curious to see how well your model might perform on Chatbot Arena, we recommend trying Arena-Hard-Auto. 
 
 > 🚨 New feature (08/31): **Style Control** is now added to Arena Hard Auto! Check this [section](#style-control) to start using style control!
 

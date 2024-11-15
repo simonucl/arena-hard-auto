@@ -27,6 +27,12 @@ gpt-4-1106-preview:
     api_type: openai
     parallel: 8
 
+gpt-4-turbo:
+    model_name: gpt-4-turbo
+    endpoints: https://elm-proxy.edina.ac.uk/v1
+    api_type: openai
+    parallel: 8
+
 llama-3-alpaca-it:
     model_name: simonycl/self-seq-Meta-Llama-3-8B-alpaca_it_llmam_70b
     endpoints:
